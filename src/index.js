@@ -8,7 +8,7 @@ type FindExport = string | null | (module: Object) => any
 type OnLoad = (module: Object) => void
 
 type Options = {
-  resolve: string | () => Id,
+  resolve?: string | () => Id, // only optional when async-only
   chunkName?: string,
   path?: string,
   key?: FindExport,
