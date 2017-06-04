@@ -1,4 +1,4 @@
 module.exports = {
-  flushModuleIds: require('./src').flushModuleIds,
-  flushChunkNames: require('./src').flushChunkNames
+  flushModuleIds: require('./dist').flushModuleIds,
+  flushChunkNames: require('./dist').flushChunkNames
 }

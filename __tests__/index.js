@@ -1,8 +1,13 @@
 // @noflow
 import path from 'path'
-import req, { tryRequire, findExport, requireById } from '../src'
-import { flushModuleIds, flushChunkNames } from '../server'
 import { createPath, waitFor, normalizePath } from '../__test-helpers__'
+import req, {
+  tryRequire,
+  findExport,
+  requireById,
+  flushModuleIds,
+  flushChunkNames
+} from '../src'
 
 
 describe('requireSync', () => {
