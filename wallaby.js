@@ -5,9 +5,13 @@ module.exports = wallaby => {
     files: [
       { pattern: 'src/**/*.js', load: false },
       { pattern: 'package.json', load: false },
-      { pattern: '__tests__/**/*.snap', load: false }
+      { pattern: '__fixtures__/**/*.js', load: false },
+      { pattern: '__test-helpers__/**/*.js', load: false },
+      { pattern: '__tests__/**/*.snap', load: false },
+      { pattern: 'server.js', load: false }
     ],
 
+    filesWithNoCoverageCalculated: ['__fixtures__/**/*.js', '__test-helpers__/**/*.js'],
     tests: ['__tests__/**/*.js'],
 
     env: {

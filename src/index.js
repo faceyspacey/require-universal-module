@@ -1,17 +1,17 @@
 // @flow
-declare var __webpack_require__: Function;
-declare var __webpack_modules__: Object;
+declare var __webpack_require__: Function
+declare var __webpack_modules__: Object
 
-type ImportAsync = Promise<*> | () => Promise<*>
+type ImportAsync = Promise<*> | (() => Promise<*>)
 type Id = string | number
-type FindExport = string | null | (module: Object) => any
+type Key = string | null | ((module: Object) => any)
 type OnLoad = (module: Object) => void
 
 type Options = {
-  resolve?: string | () => Id, // only optional when async-only
+  resolve?: string | (() => Id), // only optional when async-only
   chunkName?: string,
   path?: string,
-  key?: FindExport,
+  key?: Key,
   timeout?: number,
   onLoad?: OnLoad
 }
@@ -22,20 +22,9 @@ const MODULE_IDS = new Set()
 const IS_TEST = process.env.NODE_ENV === 'test'
 const isServer = typeof window === 'undefined' || IS_TEST
 const isWebpack = () => typeof __webpack_require__ !== 'undefined'
-const babelInterop = obj => obj && obj.__esModule ? obj.default : obj
+const babelInterop = obj => (obj && obj.__esModule ? obj.default : obj)
 
-const findExport = (mod: Object, key?: FindExport) => {
-  if (typeof key === 'function') {
-    return key(mod)
-  }
-  else if (key === null) {
-    return mod
-  }
-
-  return key ? mod[key] : babelInterop(mod)
-}
-
-const tryRequire = (id: Id, key?: FindExport, onLoad?: OnLoad) => {
+export const tryRequire = (id: Id, key?: Key, onLoad?: OnLoad) => {
   try {
     const mod = requireById(id)
 
@@ -50,7 +39,7 @@ const tryRequire = (id: Id, key?: FindExport, onLoad?: OnLoad) => {
   return null
 }
 
-const requireById = (id: Id) => {
+export const requireById = (id: Id) => {
   if (!isWebpack() && typeof id === 'string') {
     return module.require(id)
   }
@@ -58,15 +47,19 @@ const requireById = (id: Id) => {
   return __webpack_require__(id)
 }
 
-export default (importAsync: ImportAsync, options: Options) => {
-  const {
-    resolve,
-    chunkName,
-    path,
-    key,
-    timeout = 15000,
-    onLoad
-  } = options
+export const findExport = (mod: Object, key?: Key) => {
+  if (typeof key === 'function') {
+    return key(mod)
+  }
+  else if (key === null) {
+    return mod
+  }
+
+  return key ? mod[key] : babelInterop(mod)
+}
+
+export default (importAsync: ImportAsync, options: Options = {}) => {
+  const { resolve, chunkName, path, key, timeout = 15000, onLoad } = options
 
   let mod
   let weakId
@@ -133,12 +126,10 @@ export default (importAsync: ImportAsync, options: Options) => {
           return
         }
 
-        request
-          .then(m => resolveImport(null, m))
-          .catch(error => {
-            clearTimeout(timer)
-            reject(error)
-          })
+        request.then(m => resolveImport(null, m)).catch(error => {
+          clearTimeout(timer)
+          reject(error)
+        })
       })
     }
 
