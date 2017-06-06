@@ -1,7 +1,7 @@
 {
   "name": "require-universal-module",
   "version": "0.0.0-development",
-  "description": "Universal-Rendering Module Primitives",
+  "description": "Universal-Rendering Module Loading Primitives",
   "main": "dist/index.js",
   "repository": "https://github.com/faceyspacey/require-universal-module",
   "author": "James FaceySpacey Gillmore <james@faceyspacey.com> (http://www.faceyspacey.com)",

@@ -123,7 +123,7 @@ export default function createSuperDuperForwardThinkingAsyncComponent(asyncCompo
     }
 
     componentWillMount() {
-      addModule() // record the module for SSR flushing :)
+      addModule() // record usage of the module for SSR flushing :)
 
       // the component was successfully synchronously
       // required at one of the last 2 attempts
@@ -151,7 +151,7 @@ export default function createSuperDuperForwardThinkingAsyncComponent(asyncCompo
   }
 }
 ```
-> Tip: we highly recommend you checkout the React Universal Component Implementation, https://github.com/faceyspacey/react-universal-component/blob/master/src/index.js , to see what you can do.
+> Tip: we highly recommend you checkout the React Universal Component Implementation, https://github.com/faceyspacey/react-universal-component/blob/master/src/index.js , to see what else you can do.
 
 And that's it! Now your components can render both asynchronously and synchronously, and you can record which modules were used which you can triangulate into which chunks were used.
 
@@ -194,7 +194,7 @@ To be clear, the ideal setup is this:
 <script src="main.js" />
 ```
 
-[Webpack Flush Chunks](https://github.com/faceyspacey/webpack-flush-chunks) will create this for you (along with figuring out which chunks to render based on modules flushed). This way you don't need to modify how you call `ReactDOM.render()`, and so your initial synchronous require on the client works, which perhaps more importantly is a requirement for *Hot Module Replacement*--if your component is immediately assigned to state and never stored in a closure, on re-renders triggered by HMR the old component will still show. It's all small nuanced stuff, but ultimately idiomatic. *Does it not make sense that your chunks come before `main`?* It does. It's how webpack would organize everything if it bundled all your code into one chunk. Therefore your bootstrap code needs to be removed from `main` and put before everything.
+[Webpack Flush Chunks](https://github.com/faceyspacey/webpack-flush-chunks) will create this for you (along with figuring out which chunks to render based on modules flushed). This way you don't need to modify how you call `ReactDOM.render()`, and so your initial synchronous require on the client works, which perhaps more importantly is a requirement for *Hot Module Replacement*--if your component is immediately assigned to state and never stored in a closure, on re-renders triggered by HMR the old component will still show as the state will not be updated. It's all small nuanced stuff, but ultimately idiomatic. *Does it not make sense that your chunks come before `main`?* It does. It's how webpack would organize everything if it bundled all your code into one chunk. Therefore your bootstrap code needs to be removed from `main` and put before everything.
 
 Don't worry about all this right now. Chances are if you're reading this instead of just using [React Universal Component](https://github.com/faceyspacey/react-universal-component), you have a strong grasp of how these family of packages are supposed to be used :)
 
