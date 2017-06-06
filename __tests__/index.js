@@ -10,7 +10,7 @@ import req, {
 } from '../src'
 
 
-describe('requireSync', () => {
+describe('requireSync: tries to require module synchronously on both the server and client', () => {
   it('babel', () => {
     const modulePath = createPath('es6')
     const { mod } = req(undefined, { path: modulePath })
@@ -53,7 +53,7 @@ describe('requireSync', () => {
     delete global.__webpack_modules__
   })
 
-  it('webpack: when mod is undefined, requireSync used instead after all chunks evaluated', () => {
+  it('webpack: when mod is undefined, requireSync used instead after all chunks evaluated at render time', () => {
     global.__webpack_require__ = path => __webpack_modules__[path]
     const modulePath = createPath('es6')
 
@@ -90,7 +90,39 @@ describe('requireSync', () => {
   })
 })
 
-describe('requireAsync', () => {
+describe('requireAsync: requires module asynchronously on the client, returning a promise', () => {
+  it('asyncImport as function: () => import()', async () => {
+    const { requireAsync } = req(() => Promise.resolve('hurray'))
+
+    const res = await requireAsync()
+    expect(res).toEqual('hurray')
+  })
+
+  it('asyncImport as promise: import()', async () => {
+    const { requireAsync } = req(Promise.resolve('hurray'))
+
+    const res = await requireAsync()
+    expect(res).toEqual('hurray')
+  })
+
+  it('asyncImport as function using callback for require.ensure: (cb) => cb(null, module)', async () => {
+    const { requireAsync } = req(cb => cb(null, 'hurray'))
+
+    const res = await requireAsync()
+    expect(res).toEqual('hurray')
+  })
+
+  it('asyncImport as function using callback for require.ensure: (cb) => cb(error)', async () => {
+    const { requireAsync } = req(cb => cb(new Error('ah')))
+
+    try {
+      await requireAsync()
+    }
+    catch (error) {
+      expect(error.message).toEqual('ah')
+    }
+  })
+
   it('return Promise.resolve(mod) if module already synchronously required', async () => {
     const modulePath = createPath('es6')
     const { requireAsync, mod } = req(undefined, { path: modulePath })
@@ -102,38 +134,6 @@ describe('requireAsync', () => {
 
     const modAgain = await requireAsync()
     expect(modAgain).toEqual('hello')
-  })
-
-  it('() => import()', async () => {
-    const { requireAsync } = req(() => Promise.resolve('hurray'))
-
-    const res = await requireAsync()
-    expect(res).toEqual('hurray')
-  })
-
-  it('import()', async () => {
-    const { requireAsync } = req(Promise.resolve('hurray'))
-
-    const res = await requireAsync()
-    expect(res).toEqual('hurray')
-  })
-
-  it('(cb) => cb(null, "hurray")', async () => {
-    const { requireAsync } = req(cb => cb(null, 'hurray'))
-
-    const res = await requireAsync()
-    expect(res).toEqual('hurray')
-  })
-
-  it('(cb) => cb("ah")', async () => {
-    const { requireAsync } = req(cb => cb(new Error('ah')))
-
-    try {
-      await requireAsync()
-    }
-    catch (error) {
-      expect(error.message).toEqual('ah')
-    }
   })
 
   it('export not found rejects', async () => {
@@ -162,7 +162,7 @@ describe('requireAsync', () => {
 })
 
 
-describe('addModule', () => {
+describe('addModule: add moduleId and chunkName for SSR flushing', () => {
   it('babel', () => {
     flushModuleIds() // insure sets are empty:
     flushChunkNames()
@@ -216,7 +216,7 @@ describe('addModule', () => {
 })
 
 
-describe('options', () => {
+describe('other options', () => {
   it('key (string): resolve export to value of key', () => {
     const modulePath = createPath('es6')
     const { mod } = req(undefined, {
@@ -250,9 +250,9 @@ describe('options', () => {
     expect(mod).toEqual(defaultExport)
   })
 
-  it('timeout', async () => {
-    const importAsync = waitFor(20).then('hurray')
-    const { requireAsync } = req(importAsync, { timeout: 10 })
+  it('timeout: throws if loading time is longer than timeout', async () => {
+    const asyncImport = waitFor(20).then('hurray')
+    const { requireAsync } = req(asyncImport, { timeout: 10 })
 
     try {
       await requireAsync()
@@ -265,8 +265,8 @@ describe('options', () => {
   it('onLoad (async): is called and passed entire module', async () => {
     const onLoad = jest.fn()
     const mod = { __esModule: true, default: 'foo' }
-    const importAsync = Promise.resolve(mod)
-    const { requireAsync } = req(() => importAsync, {
+    const asyncImport = Promise.resolve(mod)
+    const { requireAsync } = req(() => asyncImport, {
       onLoad,
       key: 'default'
     })
@@ -281,8 +281,8 @@ describe('options', () => {
     const onLoad = jest.fn()
     const modulePath = createPath('es6')
     const mod = require(modulePath)
-    const importAsync = Promise.resolve(mod)
-    const { requireAsync } = req(importAsync, {
+    const asyncImport = Promise.resolve(mod)
+    const { requireAsync } = req(asyncImport, {
       onLoad,
       key: 'default',
       path: modulePath
@@ -295,7 +295,7 @@ describe('options', () => {
 
 
 describe('unit tests', () => {
-  test('tryRequire', () => {
+  test('tryRequire: requires module using key export finder + calls onLoad with module', () => {
     const moduleEs6 = createPath('es6')
     const expectedModule = require(moduleEs6)
 
@@ -322,7 +322,7 @@ describe('unit tests', () => {
     expect(mod).toEqual(null)
   })
 
-  test('requireById', () => {
+  test('requireById: requires module for babel or webpack depending on environment', () => {
     const moduleEs6 = createPath('es6')
     const expectedModule = require(moduleEs6)
 
@@ -346,7 +346,7 @@ describe('unit tests', () => {
     expect(() => requireById('/foo')).toThrow()
   })
 
-  test('findExport', () => {
+  test('findExport: finds export in module via key string, function or returns module if key === null', () => {
     const mod = { foo: 'bar' }
 
     // key as string

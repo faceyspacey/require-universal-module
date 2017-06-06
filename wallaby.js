@@ -11,7 +11,12 @@ module.exports = wallaby => {
       { pattern: 'server.js', load: false }
     ],
 
-    filesWithNoCoverageCalculated: ['__fixtures__/**/*.js', '__test-helpers__/**/*.js'],
+    filesWithNoCoverageCalculated: [
+      '__fixtures__/**/*.js',
+      '__test-helpers__/**/*.js',
+      'server.js'
+    ],
+
     tests: ['__tests__/**/*.js'],
 
     env: {

@@ -2,7 +2,7 @@
 declare var __webpack_require__: Function
 declare var __webpack_modules__: Object
 
-type ImportAsync = Promise<*> | (() => Promise<*>)
+type AsyncImport = Promise<*> | (() => Promise<*>)
 type Id = string | number
 type Key = string | null | ((module: Object) => any)
 type OnLoad = (module: Object) => void
@@ -58,7 +58,7 @@ export const findExport = (mod: Object, key?: Key) => {
   return key ? mod[key] : babelInterop(mod)
 }
 
-export default (importAsync: ImportAsync, options: Options = {}) => {
+export default (asyncImport: AsyncImport, options: Options = {}) => {
   const { resolve, chunkName, path, key, timeout = 15000, onLoad } = options
 
   let mod
@@ -116,11 +116,11 @@ export default (importAsync: ImportAsync, options: Options = {}) => {
           reject(new Error('export not found'))
         }
 
-        const request = typeof importAsync === 'function'
-          ? importAsync(resolveImport)
-          : importAsync
+        const request = typeof asyncImport === 'function'
+          ? asyncImport(resolveImport)
+          : asyncImport
 
-        // if importAsync doesn't return a promise, it must call resolveImport
+        // if asyncImport doesn't return a promise, it must call resolveImport
         // itself. Most common is the promise implementation below.
         if (!request || !request.then) {
           return
