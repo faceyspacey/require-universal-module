@@ -83,7 +83,7 @@ export default (asyncImport: AsyncImport, options: Options = {}) => {
     return mod
   }
 
-  const requireAsync = () => {
+  const requireAsync = (...args: Array<any>) => {
     if (mod) {
       return Promise.resolve(mod)
     }
@@ -117,7 +117,7 @@ export default (asyncImport: AsyncImport, options: Options = {}) => {
         }
 
         const request = typeof asyncImport === 'function'
-          ? asyncImport(resolveImport)
+          ? asyncImport(resolveImport, ...args)
           : asyncImport
 
         // if asyncImport doesn't return a promise, it must call resolveImport
