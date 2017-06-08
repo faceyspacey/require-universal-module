@@ -11,6 +11,10 @@
     <img src="https://lima.codeclimate.com/github/faceyspacey/require-universal-module/badges/coverage.svg" alt="Coverage Status"/>
   </a>
 
+  <a href="https://greenkeeper.io">
+    <img src="https://badges.greenkeeper.io/faceyspacey/require-universal-module.svg" alt="Green Keeper" />
+  </a>
+
   <a href="https://lima.codeclimate.com/github/faceyspacey/require-universal-module">
     <img src="https://lima.codeclimate.com/github/faceyspacey/require-universal-module/badges/gpa.svg" alt="GPA" />
   </a>
