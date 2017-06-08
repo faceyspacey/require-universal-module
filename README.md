@@ -33,6 +33,7 @@
 </p>
 
 # Require Universal Module
+
 This package provides the core server-side rendering tools for [React Universal Component](https://github.com/faceyspacey/react-universal-component) or any similar
 async components/modules you'd like to make. It has been extracted/abstracted specifically so you don't have to rely on React Universal Component, React Loadable, etc. I.e. so you can make your own.
 
@@ -323,3 +324,4 @@ Reviewing a module's tests are a great way to get familiar with it. It's direct 
 Below is a screenshot of this module's tests running in [Wallaby](https://wallabyjs.com) *("An Integrated Continuous Testing Tool for JavaScript")* which everyone in the React community should be using. It's fantastic and has taken my entire workflow to the next level. It re-runs your tests on every change along with comprehensive logging, bi-directional linking to your IDE, in-line code coverage indicators, **and even snapshot comparisons + updates for Jest!** I requestsed that feature by the way :). It's basically a substitute for live-coding that inspires you to test along your journey.
 
 ![require-universal-module wallaby tests screenshot](./tests-screenshot.png)
+
