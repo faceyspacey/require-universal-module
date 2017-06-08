@@ -274,6 +274,21 @@ The `timeout` is a feature inspired by [Vue's latest async component](https://vu
 
 Lastly, `chunkName` is to be used with [Webpack's latest magic comment feature](https://webpack.js.org/guides/code-splitting-async/#chunk-names) which only came out several weeks ago in version 2.4.1. Essentially you use a magic comment like this `import(/* webpackChunkName: "myChunkName" */ './Foo')` to name your chunk. Your chunk will be given that name (though not the individual scripts). It will be accessible in stats at: `webpackStats.assetsByChunkName['myChunkName'] === ['0.js', '0.js.map', '0.css', '0.css.map']`. This greatly simplifies the rendering of your chunks on the server, which [Webpack Flush Chunks](https://github.com/faceyspacey/webpack-flush-chunks) further simplifies. Accordingly, an array/set will be kept of the `chunkNames` used instead of `moduleIds`, which brings us to the final section:
 
+## Externals
+If you're specifying externals to leave unbundled, you need to tell Webpack
+to still bundle `react-universal-component`, `webpack-flush-chunks` and
+`require-universal-module` so that they know they are running
+within Webpack. For example:
+
+```js
+const externals = fs
+  .readdirSync(modeModules)
+  .filter(x => !/\.bin|require-universal-module|webpack-flush-chunks/.test(x))
+  .reduce((externals, mod) => {
+    externals[mod] = `commonjs ${mod}`
+    return externals
+  }, {})
+```
 
 ## Flushing
 
