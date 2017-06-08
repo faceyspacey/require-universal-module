@@ -2,9 +2,11 @@
 declare var __webpack_require__: Function
 declare var __webpack_modules__: Object
 
-type AsyncImport = Promise<*> | (() => Promise<*>)
+type ResolveImport = (error: ?any, module: ?any) => void
+type AsyncFunc = ((ResolveImport, ...args: Array<any>) => Promise<*>)
+type AsyncImport = Promise<*> | AsyncFunc
 type Id = string | number
-type Key = string | null | ((module: Object) => any)
+type Key = string | null | ((module: ?Object) => any)
 type OnLoad = (module: Object) => void
 
 type Options = {
@@ -47,7 +49,7 @@ export const requireById = (id: Id) => {
   return __webpack_require__(id)
 }
 
-export const findExport = (mod: Object, key?: Key) => {
+export const findExport = (mod: ?Object, key?: Key) => {
   if (typeof key === 'function') {
     return key(mod)
   }
@@ -55,7 +57,7 @@ export const findExport = (mod: Object, key?: Key) => {
     return mod
   }
 
-  return key ? mod[key] : babelInterop(mod)
+  return mod && key ? mod[key] : babelInterop(mod)
 }
 
 export default (asyncImport: AsyncImport, options: Options = {}) => {
