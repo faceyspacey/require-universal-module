@@ -1,3 +1,33 @@
+<p align="center">
+  <a href="https://www.npmjs.com/package/require-universal-module">
+    <img src="https://img.shields.io/npm/v/require-universal-module.svg" alt="Version" />
+  </a>
+
+  <a href="https://travis-ci.org/faceyspacey/require-universal-module">
+    <img src="https://travis-ci.org/faceyspacey/require-universal-module.svg?branch=master" alt="Build Status" />
+  </a>
+
+  <a href="https://lima.codeclimate.com/github/faceyspacey/require-universal-module/coverage">
+    <img src="https://lima.codeclimate.com/github/faceyspacey/require-universal-module/badges/coverage.svg" alt="Coverage Status"/>
+  </a>
+
+  <a href="https://lima.codeclimate.com/github/faceyspacey/require-universal-module">
+    <img src="https://lima.codeclimate.com/github/faceyspacey/require-universal-module/badges/gpa.svg" alt="GPA" />
+  </a>
+
+  <a href="https://www.npmjs.com/package/require-universal-module">
+    <img src="https://img.shields.io/npm/dt/require-universal-module.svg" alt="Downloads" />
+  </a>
+
+  <a href="https://www.npmjs.com/package/require-universal-module">
+    <img src="https://img.shields.io/npm/l/require-universal-module.svg" alt="License" />
+  </a>
+
+  <a href="https://gitter.im/require-universal-module">
+    <img src="https://img.shields.io/gitter/room/nwjs/nw.js.svg" alt="Gitter Chat" />
+  </a>
+</p>
+
 # Require Universal Module
 This package provides the core server-side rendering tools for [React Universal Component](https://github.com/faceyspacey/react-universal-component) or any similar
 async components/modules you'd like to make. It has been extracted/abstracted specifically so you don't have to rely on React Universal Component, React Loadable, etc. I.e. so you can make your own.
