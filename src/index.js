@@ -2,14 +2,14 @@
 declare var __webpack_require__: Function
 declare var __webpack_modules__: Object
 
-type ResolveImport = (error: ?any, module: ?any) => void
-type AsyncFunc = ((ResolveImport, ...args: Array<any>) => Promise<*>)
-type AsyncImport = Promise<*> | AsyncFunc
-type Id = string | number
-type Key = string | null | ((module: ?Object) => any)
-type OnLoad = (module: Object) => void
+export type ResolveImport = (error: ?any, module: ?any) => void
+export type AsyncFunc = ((ResolveImport, ...args: Array<any>) => Promise<*>)
+export type AsyncImport = Promise<*> | AsyncFunc
+export type Id = string
+export type Key = string | null | ((module: ?Object) => any)
+export type OnLoad = (module: Object) => void
 
-type Options = {
+export type Options = {
   resolve?: string | (() => Id), // only optional when async-only
   chunkName?: string,
   path?: string,
@@ -17,6 +17,20 @@ type Options = {
   timeout?: number,
   onLoad?: OnLoad
 }
+
+export type RequireAsync = () => Promise<?any>
+export type RequireSync = () => ?any
+export type AddModule = () => void
+export type Mod = any
+
+export type Tools = {
+  requireAsync: RequireAsync,
+  requireSync: RequireSync,
+  addModule: AddModule,
+  mod: ?Mod
+}
+
+export type Ids = Array<string>
 
 const CHUNK_NAMES = new Set()
 const MODULE_IDS = new Set()
@@ -26,11 +40,11 @@ const isServer = typeof window === 'undefined' || IS_TEST
 const isWebpack = () => typeof __webpack_require__ !== 'undefined'
 const babelInterop = obj => (obj && obj.__esModule ? obj.default : obj)
 
-export const tryRequire = (id: Id, key?: Key, onLoad?: OnLoad) => {
+export const tryRequire = (id: Id, key?: Key, onLoad?: OnLoad): ?any => {
   try {
     const mod = requireById(id)
 
-    if (onLoad) {
+    if (onLoad && mod) {
       onLoad(mod)
     }
 
@@ -41,7 +55,7 @@ export const tryRequire = (id: Id, key?: Key, onLoad?: OnLoad) => {
   return null
 }
 
-export const requireById = (id: Id) => {
+export const requireById = (id: Id): ?any => {
   if (!isWebpack() && typeof id === 'string') {
     return module.require(id)
   }
@@ -49,7 +63,7 @@ export const requireById = (id: Id) => {
   return __webpack_require__(id)
 }
 
-export const findExport = (mod: ?Object, key?: Key) => {
+export const findExport = (mod: ?Object, key?: Key): ?any => {
   if (typeof key === 'function') {
     return key(mod)
   }
@@ -60,7 +74,7 @@ export const findExport = (mod: ?Object, key?: Key) => {
   return mod && key ? mod[key] : babelInterop(mod)
 }
 
-export default (asyncImport: AsyncImport, options: Options = {}) => {
+export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
   const { resolve, chunkName, path, key, timeout = 15000, onLoad } = options
 
   let mod
@@ -68,7 +82,7 @@ export default (asyncImport: AsyncImport, options: Options = {}) => {
   let prom
   let timer
 
-  const requireSync = () => {
+  const requireSync = (): ?any => {
     if (!mod) {
       if (!isWebpack() && path) {
         mod = tryRequire(path, key, onLoad)
@@ -85,7 +99,7 @@ export default (asyncImport: AsyncImport, options: Options = {}) => {
     return mod
   }
 
-  const requireAsync = (...args: Array<any>) => {
+  const requireAsync = (...args: Array<any>): Promise<?any> => {
     if (mod) {
       return Promise.resolve(mod)
     }
@@ -128,17 +142,19 @@ export default (asyncImport: AsyncImport, options: Options = {}) => {
           return
         }
 
-        request.then(m => resolveImport(null, m)).catch(error => {
-          clearTimeout(timer)
-          reject(error)
-        })
+        request
+          .then(m => resolveImport(null, m))
+          .catch(error => {
+            clearTimeout(timer)
+            reject(error)
+          })
       })
     }
 
     return prom
   }
 
-  const addModule = () => {
+  const addModule = (): void => {
     if (isServer) {
       if (chunkName) {
         CHUNK_NAMES.add(chunkName)
@@ -165,13 +181,13 @@ export default (asyncImport: AsyncImport, options: Options = {}) => {
   }
 }
 
-export const flushChunkNames = () => {
+export const flushChunkNames = (): Ids => {
   const chunks = Array.from(CHUNK_NAMES)
   CHUNK_NAMES.clear()
   return chunks
 }
 
-export const flushModuleIds = () => {
+export const flushModuleIds = (): Ids => {
   const ids = Array.from(MODULE_IDS)
   MODULE_IDS.clear()
   return ids
