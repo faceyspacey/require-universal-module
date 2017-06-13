@@ -124,7 +124,7 @@ describe('requireAsync: requires module asynchronously on the client, returning 
   })
 
   it('asyncImport as function with args: (cb, a, b) => import()', async () => {
-    const { requireAsync } = req((cb, a, b) => Promise.resolve([a, b]))
+    const { requireAsync } = req((a, b, cb) => Promise.resolve([a, b]))
 
     const res = await requireAsync(1, 2)
     expect(res).toEqual([1, 2])
