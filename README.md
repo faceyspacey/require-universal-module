@@ -244,7 +244,8 @@ requireUniversalModule(asyncImport, options)
 
 The first argument can be a function that returns a promise, or a promise itself, or a function that takes a node-style callback, which it can call with the module, as is useful if you are using Webpack's `require.ensure` directly:
 
-`requireUniversalModule(cb => require.ensure([], require => cb(null, require('./Foo'))), options)`. 
+`requireUniversalModule((cb) => require.ensure([], require => cb(null, require('./Foo'))), options)`. 
+> note: when you call `requireAsync`, any arguments you pass will come before `cb`. For example, `react-universal-component` consistently passes `props` as the first arg.
 
 Most common though is a function that returns a promise *(vs. just a promise)*, as that can be used to properly split your code into chunks without the user/developer having to create their own wrapper function or HoC. See, if your promise is immediately evaluated on page load, the module will also be immediately requested (in a second request), which defeats the purpose of code-splitting. Regular Webpack has no transpilation feature as Next.js seems to which allows for direct usage of promises. It's a very minor *non-issue*. Either way, if you're using a wrapper function, it can be done, and it's up to the developer to avoid the aforementioned problem. Ultimately this likely won't matter, as you'll pass this choice on to the developer. If you want to a shorter readme than this, don't promote any option but functions returning promises ;)
 

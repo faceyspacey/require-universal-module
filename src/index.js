@@ -8,17 +8,18 @@ export type AsyncImport = Promise<*> | AsyncFunc
 export type Id = string
 export type Key = string | null | ((module: ?Object) => any)
 export type OnLoad = (module: Object) => void
+export type PathResolve = Id | (() => Id)
 
 export type Options = {
-  resolve?: string | (() => Id), // only optional when async-only
+  resolve?: PathResolve, // only optional when async-only
   chunkName?: string,
-  path?: string,
+  path?: PathResolve,
   key?: Key,
   timeout?: number,
   onLoad?: OnLoad
 }
 
-export type RequireAsync = () => Promise<?any>
+export type RequireAsync = (...args: Array<any>) => Promise<?any>
 export type RequireSync = () => ?any
 export type AddModule = () => void
 export type Mod = any
@@ -76,6 +77,7 @@ export const findExport = (mod: ?Object, key?: Key): ?any => {
 
 export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
   const { resolve, chunkName, path, key, timeout = 15000, onLoad } = options
+  const modulePath = typeof path === 'function' ? path() : (path || '')
 
   let mod
   let weakId
@@ -85,7 +87,7 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
   const requireSync = (): ?any => {
     if (!mod) {
       if (!isWebpack() && path) {
-        mod = tryRequire(path, key, onLoad)
+        mod = tryRequire(modulePath, key, onLoad)
       }
       else if (isWebpack() && resolve) {
         weakId = typeof resolve === 'string' ? resolve : resolve()
@@ -133,7 +135,7 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
         }
 
         const request = typeof asyncImport === 'function'
-          ? asyncImport(resolveImport, ...args)
+          ? asyncImport(...args, resolveImport)
           : asyncImport
 
         // if asyncImport doesn't return a promise, it must call resolveImport
@@ -168,7 +170,7 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
         MODULE_IDS.add(weakId)
       }
       else if (!isWebpack() && path) {
-        MODULE_IDS.add(path)
+        MODULE_IDS.add(modulePath)
       }
     }
   }
