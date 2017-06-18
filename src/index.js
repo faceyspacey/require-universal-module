@@ -16,7 +16,9 @@ export type Options = {
   path?: PathResolve,
   key?: Key,
   timeout?: number,
-  onLoad?: OnLoad
+  onLoad?: OnLoad,
+  initialRequire?: boolean,
+  alwaysUpdate?: boolean
 }
 
 export type RequireAsync = (...args: Array<any>) => Promise<?any>
@@ -76,7 +78,17 @@ export const findExport = (mod: ?Object, key?: Key): ?any => {
 }
 
 export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
-  const { resolve, chunkName, path, key, timeout = 15000, onLoad } = options
+  const {
+    resolve,
+    chunkName,
+    path,
+    key,
+    timeout = 15000,
+    onLoad,
+    initialRequire = true,
+    alwaysUpdate = false
+  } = options
+
   const modulePath = typeof path === 'function' ? path() : (path || '')
 
   let mod
@@ -102,11 +114,11 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
   }
 
   const requireAsync = (...args: Array<any>): Promise<?any> => {
-    if (mod) {
+    if (mod && !alwaysUpdate) {
       return Promise.resolve(mod)
     }
 
-    if (!prom) {
+    if (!prom || alwaysUpdate) {
       prom = new Promise((resolve, reject) => {
         if (timeout) {
           timer = setTimeout(() => {
@@ -179,7 +191,7 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
     requireSync,
     requireAsync,
     addModule,
-    mod: requireSync()
+    mod: initialRequire ? requireSync() : undefined
   }
 }
 

@@ -255,9 +255,11 @@ All are optional except `resolve` and if you are using Babel on the server, you 
 - `resolve`: `() => require.resolveWeak('./Foo')`
 - `path`: `path.join(__dirname, './Example')`
 - `key`: `'foo'` || `module => module.foo` || `null`
-- `chunkName`: `'myChunkName'` 
-- `timeout`: `15000` -- *default*
 - `onLoad`: `module => doSomething(module)
+- `timeout`: `15000` -- *default*
+- `initialRequire`: true -- *default*
+- `alwaysUpdate`: false -- *default*
+- `chunkName`: `'myChunkName'` 
 
 Ok, let's go over the options real quick. 
 
@@ -272,6 +274,10 @@ The `key` is used to resolve which export you want from a module. It's pretty se
 - use your `onLoad` function which *always* receives the entire module to find a different export, and do something with it such as call `store.replaceReducer({ ...reducers, foo: module.otherExport })`
 
 The `timeout` is a feature inspired by [Vue's latest async component](https://vuejs.org/v2/guide/components.html#Advanced-Async-Components), which itself was inspired by React Loadable. It lets you specify essentially a maximum time the async module has to load before an error is thrown. In *React Universal Component*, it is used to trigger the rendering of an `<Error />` component.
+
+The `initialRequire` option lets you indicate that you don't want an initial synchronous require performed for you. Therefore `mod` will always be undefined if this is set. It defaults to `true`.
+
+The `alwaysUpdate` option lets you indicate that you don't want to respect a cached module when `requireAsync` is called. It will always attempt to retrieve a new module. It defaults to `false`.
 
 Lastly, `chunkName` is to be used with [Webpack's latest magic comment feature](https://webpack.js.org/guides/code-splitting-async/#chunk-names) which only came out several weeks ago in version 2.4.1. Essentially you use a magic comment like this `import(/* webpackChunkName: "myChunkName" */ './Foo')` to name your chunk. Your chunk will be given that name (though not the individual scripts). It will be accessible in stats at: `webpackStats.assetsByChunkName['myChunkName'] === ['0.js', '0.js.map', '0.css', '0.css.map']`. This greatly simplifies the rendering of your chunks on the server, which [Webpack Flush Chunks](https://github.com/faceyspacey/webpack-flush-chunks) further simplifies. Accordingly, an array/set will be kept of the `chunkNames` used instead of `moduleIds`, which brings us to the final section:
 

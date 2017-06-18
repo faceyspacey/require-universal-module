@@ -19,6 +19,14 @@ describe('requireSync: tries to require module synchronously on both the server 
     expect(mod).toEqual(defaultExport)
   })
 
+  it('babel: path option as function', () => {
+    const modulePath = createPath('es6')
+    const { mod } = req(undefined, { path: () => modulePath })
+
+    const defaultExport = require(modulePath).default
+    expect(mod).toEqual(defaultExport)
+  })
+
   it('webpack', () => {
     global.__webpack_require__ = path => __webpack_modules__[path]
     const modulePath = createPath('es6')
@@ -27,7 +35,7 @@ describe('requireSync: tries to require module synchronously on both the server 
       [modulePath]: require(modulePath)
     }
 
-    const { mod } = req(undefined, { resolve: modulePath })
+    const { mod } = req(undefined, { resolve: () => modulePath })
 
     const defaultExport = require(modulePath).default
     expect(mod).toEqual(defaultExport)
@@ -297,6 +305,29 @@ describe('other options', () => {
 
     expect(onLoad).toBeCalledWith(mod)
     expect(onLoad).not.toBeCalledWith('foo')
+  })
+
+  it('initialRequire === false: rdoes not perform initial require assigned to "mod"', () => {
+    const modulePath = createPath('es6')
+    const { mod } = req(undefined, {
+      path: path.join(__dirname, '../__fixtures__/es6'),
+      key: null,
+      initialRequire: false
+    })
+
+    expect(mod).not.toBeDefined()
+  })
+
+  it('alwaysUpdate === true: always calls calls asyncImport, even if cached', async () => {
+    const asyncImport = arg => Promise.resolve(arg)
+    const { requireAsync, mod } = req(asyncImport, {
+      key: null,
+      alwaysUpdate: true
+    })
+
+    let res = await requireAsync(1)
+    res = await requireAsync(2)
+    expect(res).toEqual(2)
   })
 })
 
