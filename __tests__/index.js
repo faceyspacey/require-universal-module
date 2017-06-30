@@ -9,7 +9,6 @@ import req, {
   flushChunkNames
 } from '../src'
 
-
 describe('requireSync: tries to require module synchronously on both the server and client', () => {
   it('babel', () => {
     const modulePath = createPath('es6')
@@ -174,8 +173,23 @@ describe('requireAsync: requires module asynchronously on the client, returning 
       expect(error.message).toEqual('ah')
     }
   })
-})
 
+  it('rejected promise calls onError', async () => {
+    const error = new Error('ah')
+    const onError = jest.fn()
+    const opts = { onError }
+    const { requireAsync } = req(Promise.reject(error), opts)
+
+    try {
+      await requireAsync()
+    }
+    catch (error) {
+      expect(error.message).toEqual('ah')
+    }
+
+    expect(onError).toBeCalledWith(error)
+  })
+})
 
 describe('addModule: add moduleId and chunkName for SSR flushing', () => {
   it('babel', () => {
@@ -213,7 +227,10 @@ describe('addModule: add moduleId and chunkName for SSR flushing', () => {
     flushModuleIds() // insure sets are empty:
     flushChunkNames()
 
-    let universal = req(undefined, { resolve: () => moduleEs6, chunkName: 'es6' })
+    let universal = req(undefined, {
+      resolve: () => moduleEs6,
+      chunkName: 'es6'
+    })
     universal.addModule()
 
     universal = req(undefined, { resolve: () => moduleEs5, chunkName: 'es5' })
@@ -229,7 +246,6 @@ describe('addModule: add moduleId and chunkName for SSR flushing', () => {
     delete global.__webpack_modules__
   })
 })
-
 
 describe('other options', () => {
   it('key (string): resolve export to value of key', () => {
@@ -330,7 +346,6 @@ describe('other options', () => {
     expect(res).toEqual(2)
   })
 })
-
 
 describe('unit tests', () => {
   test('tryRequire: requires module using key export finder + calls onLoad with module', () => {

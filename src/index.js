@@ -3,19 +3,20 @@ declare var __webpack_require__: Function
 declare var __webpack_modules__: Object
 
 export type ResolveImport = (error: ?any, module: ?any) => void
-export type AsyncFunc = ((ResolveImport, ...args: Array<any>) => Promise<*>)
+export type AsyncFunc = (ResolveImport, ...args: Array<any>) => Promise<*>
 export type AsyncImport = Promise<*> | AsyncFunc
 export type Id = string
 export type Key = string | null | ((module: ?Object) => any)
 export type OnLoad = (module: Object) => void
+export type OnError = (error: Object) => void
 export type PathResolve = Id | (() => Id)
-
 export type Options = {
   resolve?: PathResolve, // only optional when async-only
   chunkName?: string,
   path?: PathResolve,
   key?: Key,
   timeout?: number,
+  onError?: OnError,
   onLoad?: OnLoad,
   initialRequire?: boolean,
   alwaysUpdate?: boolean
@@ -85,11 +86,12 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
     key,
     timeout = 15000,
     onLoad,
+    onError,
     initialRequire = true,
     alwaysUpdate = false
   } = options
 
-  const modulePath = typeof path === 'function' ? path() : (path || '')
+  const modulePath = typeof path === 'function' ? path() : path || ''
 
   let mod
   let weakId
@@ -156,12 +158,11 @@ export default (asyncImport: ?AsyncImport, options: Options = {}): Tools => {
           return
         }
 
-        request
-          .then(m => resolveImport(null, m))
-          .catch(error => {
-            clearTimeout(timer)
-            reject(error)
-          })
+        request.then(m => resolveImport(null, m)).catch(error => {
+          clearTimeout(timer)
+          if (onError) onError(error)
+          reject(error)
+        })
       })
     }
 
