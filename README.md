@@ -65,6 +65,7 @@ In addition to being an abstraction to create your own Async Components, it impr
 - HMR for your async/sync "universal" modules
 - Support for Webpack's brand new *webpackChunkName "magic comment" feature*
 - `onLoad` hook to extract other exports from the module to do things like call `store.replaceReducer()`
+- `onError` callback called if `requireAsync` errors. It does not apply to `requireSync`.
 - A timeout option, at which point an error is thrown (inspired by [Vue's latest code-splitting component](https://vuejs.org/v2/guide/components.html#Advanced-Async-Components))
 - Ability to use a function instead of a promise, e.g. a function that calls `require.ensure`. Note: Webpack's `require.ensure` still has several capabilities that the new `import().then` spec does not, which is why a callback API is necessary as well
 - Miscellaneous smaller features that clean up the API and automate many possible use-cases
